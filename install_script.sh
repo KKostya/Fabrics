@@ -25,7 +25,7 @@ LD_LIBRARY_PATH=$INSTALLDIR/lib/ $INSTALLDIR/bin/virtualenv --python=$INSTALLDIR
 cat > env.sh << "EOF"
 MY_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $MY_PATH/fabric/bin/activate
-expiort LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MY_PATH/install/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MY_PATH/install/lib
 EOF
  
 . env.sh
