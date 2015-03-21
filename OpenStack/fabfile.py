@@ -1,7 +1,11 @@
 import StringIO
 from fabric.api import *
 
-env.hosts = ["root@kanishev-ams-vm0"]
+env.hosts = [
+    "root@kanishev-ams-vm0",
+#    "root@kanishev-ams-vm1",
+#    "root@kanishev-ams-vm4"
+]
 
 krbconf = StringIO.StringIO("""
 [libdefaults]

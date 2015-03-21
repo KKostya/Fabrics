@@ -6,10 +6,11 @@ DISTDIR    = BASEDIR + "/distribs"
 INSTALLDIR = BASEDIR + "/install"
 
 env.hosts = [
-    "root@kanishev-ams-vm0",
-#    "root@kanishev-ams-vm1",
-#    "root@kanishev-ams-vm2",
-#    "root@kanishev-ams-vm3",
+#    "root@kanishev-ams-vm0",
+    "root@kanishev-ams-vm1",
+    "root@kanishev-ams-vm2",
+    "root@kanishev-ams-vm3",
+    "root@kanishev-ams-vm4",
 ]
 
 envsh = StringIO.StringIO("""
@@ -91,7 +92,7 @@ def install_numpy():
  
     with cd(DISTDIR):
         run("mkdir -p numpy")
-        run("pip install -d numpy numpy")
+        run("source env.sh && pip install -d numpy numpy")
         with cd("numpy"):
             run("tar xvvf numpy-*.tar.gz")
             with cd("numpy-*"):
@@ -102,8 +103,8 @@ def install_numpy():
                     libraries = openblas
                     library_dirs = $INSTALLDIR/lib
                     include_dirs = $INSTALLDIR/include"""), "site.cfg")
-                run("python setup.py install")
-                run("pip install scipy")
+                run("$HOME/{0}/source env.sh && python setup.py install".format(DISTDIR))
+	run("source  env.sh && pip install scipy")
 
 def prepare_venv():
     with cd(BASEDIR):
@@ -113,6 +114,6 @@ def prepare_venv():
         put(envsh, "env.sh")
 
         run('source env.sh && pip install pyzmq --install-option="--zmq=$HOME/{0}"'.format(INSTALLDIR))
-        run('CPPFLAGS="-I$HOME/{0}/include" pip install pysqlite'.format(INSTALLDIR))
+        run('source env.sh && CPPFLAGS="-I$HOME/{0}/include" pip install pysqlite'.format(INSTALLDIR))
          
-        run('pip install ipython[all]')
+        run('source env.sh && pip install ipython[all]')

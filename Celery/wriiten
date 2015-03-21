@@ -1,0 +1,15 @@
+# iptables
+# /etc/sysconfig/iptables 
+-A INPUT -p tcp -m tcp --dport 9100:9105 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 15672 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 5672 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 5673 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 4369 -j ACCEPT
+
+#
+# /etc/rabbitmq/rabbitmq.config        
+[{kernel, [ 
+        {inet_dist_listen_max, 9105}, 
+        {inet_dist_listen_min, 9100} 
+]}]. 
+
