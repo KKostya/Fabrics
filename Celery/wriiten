@@ -1,3 +1,6 @@
+# erlang cookie
+/var/lib/rabbitmq/.erlang.cookie
+
 # iptables
 # /etc/sysconfig/iptables 
 -A INPUT -p tcp -m tcp --dport 9100:9105 -j ACCEPT
@@ -13,3 +16,10 @@
         {inet_dist_listen_min, 9100} 
 ]}]. 
 
+# execute
+
+service iptables restart
+service rabbitmq-server restart
+rabbitmqctl stop_app
+rabbitmqctl join_cluster rabbit@kanishev-ams-vm0
+rabbitmqctl start_app

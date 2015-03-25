@@ -3,8 +3,10 @@ from fabric.api import *
 
 env.hosts = [
     "root@kanishev-ams-vm0",
-#    "root@kanishev-ams-vm1",
-#    "root@kanishev-ams-vm4"
+    "root@kanishev-ams-vm1",
+    "root@kanishev-ams-vm2",
+    "root@kanishev-ams-vm3",
+    "root@kanishev-ams-vm4"
 ]
 
 krbconf = StringIO.StringIO("""
@@ -71,6 +73,20 @@ def mount_all(user="kostams"):
     run("aklog")
     run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
     run("if ! grep -qs '/dev/vda3' /proc/mounts; then mount /dev/vda3 /data; fi")
+
+def test_eos(user="kostams"):
+    afshome = '/afs/cern.ch/user/{0}/{1}'.format(user[0],user)
+    with settings(warn_only=True):
+       ls = run(" ls {0}/eos/ams/user/k/kostams".format(afshome))
+       if not ls:
+           print "Cannot access eos, remounting"
+           run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse umount {0}/eos".format(afshome))
+           run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
+
+
+#    run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
+
+
 
 def create_partition(): 
     fdisk = run("fdisk -l -u /dev/vda")

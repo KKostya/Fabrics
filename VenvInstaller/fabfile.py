@@ -20,6 +20,16 @@ source $MY_PATH/ipython/bin/activate
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MY_PATH/install/lib
 """)
 
+
+numpycfgcommand = """ cat > site.cfg << EOF
+[default]
+library_dirs= $HOME/{0}/lib/
+[openblas]
+libraries = openblas
+library_dirs = $HOME/{0}/lib
+include_dirs = $HOME/{0}/include
+EOF""".format(INSTALLDIR)
+
 def yum():
     packages = [
         "openssl-devel", "xorg-x11-server-devel", "gcc-gfortran",
@@ -85,6 +95,7 @@ def compile():
 
 def install_numpy():
     with cd(DISTDIR):
+        # TODO remove openblas if exists
         run("git clone git://github.com/xianyi/OpenBLAS")
         with(cd("OpenBLAS")):
             run("make FC=gfortran")
@@ -92,19 +103,14 @@ def install_numpy():
  
     with cd(DISTDIR):
         run("mkdir -p numpy")
-        run("source env.sh && pip install -d numpy numpy")
+        run("source $HOME/{0}/env.sh && pip install -d numpy numpy".format(BASEDIR))
         with cd("numpy"):
             run("tar xvvf numpy-*.tar.gz")
             with cd("numpy-*"):
-                put(StringIO.StringIO("""
-                    [default]
-                    library_dirs= $INSTALLDIR/lib/
-                    [openblas]
-                    libraries = openblas
-                    library_dirs = $INSTALLDIR/lib
-                    include_dirs = $INSTALLDIR/include"""), "site.cfg")
-                run("$HOME/{0}/source env.sh && python setup.py install".format(DISTDIR))
-	run("source  env.sh && pip install scipy")
+                run(numpycfgcommand)
+                run("source $HOME/{0}/env.sh && python setup.py install".format(BASEDIR))
+    with cd(BASEDIR):
+	run("source env.sh && pip install scipy")
 
 def prepare_venv():
     with cd(BASEDIR):
