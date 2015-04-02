@@ -17,6 +17,8 @@
 ]}]. 
 
 # execute
+#
+# ? rabbitmqctl add_user worker worker
 
 service iptables restart
 service rabbitmq-server restart

@@ -1,9 +1,7 @@
 import StringIO
 from fabric.api import *
 
-BASEDIR    = "VirtualEnv"
-DISTDIR    = BASEDIR + "/distribs"
-INSTALLDIR = BASEDIR + "/install"
+env.forward_agent = True
 
 env.hosts = [
     "root@kanishev-ams-vm0",
@@ -13,6 +11,8 @@ env.hosts = [
     "root@kanishev-ams-vm4",
 ]
 
-def yum():
-    packages = ["rabbitmq-server"] 
-    run("yum -y install " + " ".join(packages))
+def update():
+    with cd("AMSDeutons"):
+        run("git pull")
+        run("source amsvar.sh.lxplus && make")
+

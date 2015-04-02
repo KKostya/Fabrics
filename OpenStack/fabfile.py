@@ -71,8 +71,8 @@ def mount_all(user="kostams"):
     afshome = '/afs/cern.ch/user/{0}/{1}'.format(user[0],user)
     run("kinit {0}@CERN.CH".format(user))
     run("aklog")
-    run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
     run("if ! grep -qs '/dev/vda3' /proc/mounts; then mount /dev/vda3 /data; fi")
+    test_eos(user=user) 
 
 def test_eos(user="kostams"):
     afshome = '/afs/cern.ch/user/{0}/{1}'.format(user[0],user)
@@ -84,7 +84,6 @@ def test_eos(user="kostams"):
            run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
 
 
-#    run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
 
 
 

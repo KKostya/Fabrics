@@ -6,7 +6,7 @@ DISTDIR    = BASEDIR + "/distribs"
 INSTALLDIR = BASEDIR + "/install"
 
 env.hosts = [
-#    "root@kanishev-ams-vm0",
+    "root@kanishev-ams-vm0",
     "root@kanishev-ams-vm1",
     "root@kanishev-ams-vm2",
     "root@kanishev-ams-vm3",
@@ -35,7 +35,7 @@ def yum():
         "openssl-devel", "xorg-x11-server-devel", "gcc-gfortran",
         "gcc-c++", "gcc", "binutils", "libX11-devel", 
         "libXpm-devel", "libXft-devel", "libXext-devel",
-	"cmake"]
+        "libpng-devel", "cmake"]
         
     run("yum -y install " + " ".join(packages))
 
