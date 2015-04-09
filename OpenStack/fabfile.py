@@ -46,6 +46,8 @@ def setup_afs(user="kostams"):
 cvmfs = StringIO.StringIO("""
     CVMFS_HTTP_PROXY=\"http://ca-proxy.cern.ch:3128;http://ca-proxy1.cern.ch:3128|http://ca-proxy2.cern.ch:3128|http://ca-proxy3.cern.ch:3128|http://ca-proxy4.cern.ch:3128|http://ca-proxy5.cern.ch:3128\"
     CVMFS_REPOSITORIES=ams
+    CVMFS_CACHE_BASE=/data/cvmfs_cache
+    CVMFS_QUOTA_LIMIT=10000
 """)
 
 def setup_cvmfs():
@@ -57,14 +59,16 @@ def setup_cvmfs():
 
     run("yum -y install cvmfs.x86_64")
 
+    run("mkdir -p /data/cvmfs_cache/shared")
     put(cvmfs, "/etc/cvmfs/default.local")
     put(StringIO.StringIO(
         'CVMFS_SERVER_URL="http://cvmfs-stratum-one.cern.ch/opt/@org@"'
         ), "/etc/cvmfs/config.d/ams.cern.ch.local"
     )
-    run("service autofs start")    
+    run("service autofs restart")    
     run("cvmfs_config setup")
-    run("cvmfs_config probe")
+    with settings(warn_only=True):
+        run("cvmfs_config probe")
 
 
 def mount_all(user="kostams"):

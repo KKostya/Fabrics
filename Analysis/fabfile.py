@@ -4,7 +4,7 @@ from fabric.api import *
 env.forward_agent = True
 
 env.hosts = [
-    "root@kanishev-ams-vm0",
+#    "root@kanishev-ams-vm0",
     "root@kanishev-ams-vm1",
     "root@kanishev-ams-vm2",
     "root@kanishev-ams-vm3",

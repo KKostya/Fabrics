@@ -35,7 +35,7 @@ def yum():
         "openssl-devel", "xorg-x11-server-devel", "gcc-gfortran",
         "gcc-c++", "gcc", "binutils", "libX11-devel", 
         "libXpm-devel", "libXft-devel", "libXext-devel",
-        "libpng-devel", "cmake"]
+        "libpng-devel", "cmake", "ncurses-devel"]
         
     run("yum -y install " + " ".join(packages))
 
@@ -121,5 +121,6 @@ def prepare_venv():
 
         run('source env.sh && pip install pyzmq --install-option="--zmq=$HOME/{0}"'.format(INSTALLDIR))
         run('source env.sh && CPPFLAGS="-I$HOME/{0}/include" pip install pysqlite'.format(INSTALLDIR))
-         
+        # That is for better terminal in ipython 
+        run('source env.sh && pip install gnureadline')
         run('source env.sh && pip install ipython[all]')
