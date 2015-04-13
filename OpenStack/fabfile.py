@@ -2,11 +2,11 @@ import StringIO
 from fabric.api import *
 
 env.hosts = [
-    "root@kanishev-ams-vm0",
-    "root@kanishev-ams-vm1",
+#    "root@kanishev-ams-vm0",
+#    "root@kanishev-ams-vm1",
     "root@kanishev-ams-vm2",
-    "root@kanishev-ams-vm3",
-    "root@kanishev-ams-vm4"
+#    "root@kanishev-ams-vm3",
+#    "root@kanishev-ams-vm4"
 ]
 
 krbconf = StringIO.StringIO("""
@@ -46,8 +46,6 @@ def setup_afs(user="kostams"):
 cvmfs = StringIO.StringIO("""
     CVMFS_HTTP_PROXY=\"http://ca-proxy.cern.ch:3128;http://ca-proxy1.cern.ch:3128|http://ca-proxy2.cern.ch:3128|http://ca-proxy3.cern.ch:3128|http://ca-proxy4.cern.ch:3128|http://ca-proxy5.cern.ch:3128\"
     CVMFS_REPOSITORIES=ams
-    CVMFS_CACHE_BASE=/data/cvmfs_cache
-    CVMFS_QUOTA_LIMIT=10000
 """)
 
 def setup_cvmfs():
@@ -59,7 +57,6 @@ def setup_cvmfs():
 
     run("yum -y install cvmfs.x86_64")
 
-    run("mkdir -p /data/cvmfs_cache/shared")
     put(cvmfs, "/etc/cvmfs/default.local")
     put(StringIO.StringIO(
         'CVMFS_SERVER_URL="http://cvmfs-stratum-one.cern.ch/opt/@org@"'
@@ -71,24 +68,25 @@ def setup_cvmfs():
         run("cvmfs_config probe")
 
 
+def mount_data():
+    run("if ! grep -qs '/dev/vda3' /proc/mounts; then mount /dev/vda3 /data; fi")
+
+
 def mount_all(user="kostams"):
     afshome = '/afs/cern.ch/user/{0}/{1}'.format(user[0],user)
     run("kinit {0}@CERN.CH".format(user))
     run("aklog")
-    run("if ! grep -qs '/dev/vda3' /proc/mounts; then mount /dev/vda3 /data; fi")
+    mount_data()
     test_eos(user=user) 
 
 def test_eos(user="kostams"):
     afshome = '/afs/cern.ch/user/{0}/{1}'.format(user[0],user)
     with settings(warn_only=True):
        ls = run(" ls {0}/eos/ams/user/k/kostams".format(afshome))
-       if not ls:
+       if (not ls) or ("No such file or directory" in ls):
            print "Cannot access eos, remounting"
            run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse umount {0}/eos".format(afshome))
            run("GROUP=va /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount {0}/eos".format(afshome))
-
-
-
 
 
 def create_partition(): 
@@ -104,9 +102,16 @@ def create_partition():
         print " -- last block {}".format(last)
         print " -- type {}".format(ptype)
 
-    with settings(warn_only=True):
-        run("echo -e 'u\nn\np\n{0}\n{1}\n\nt\n{0}\n{2}\nw\n' | fdisk /dev/vda".format(N+1,last+1,ptype))
-    reboot()
+    if N == 2:
+        print "There are only two partitons -- creating the third one"
+        with settings(warn_only=True):
+            run("echo -e 'u\nn\np\n{0}\n{1}\n\nt\n{0}\n{2}\nw\n' | fdisk /dev/vda".format(N+1,last+1,ptype))
+        reboot()
+        run("mkfs.ext4 /dev/vda{}".format(N+1))
+    else:
+        print "VDA3 partition seems to already exist"
+        run("mkfs.ext4 /dev/vda{}".format(N))
 
-    run("mkfs.ext4 /dev/vda{}".format(N+1))
+    run("mkdir -p /data")
+    mount_data()
 
