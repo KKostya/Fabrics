@@ -3,10 +3,10 @@ from fabric.api import *
 
 env.hosts = [
 #    "root@kanishev-ams-vm0",
-#    "root@kanishev-ams-vm1",
-    "root@kanishev-ams-vm2",
-#    "root@kanishev-ams-vm3",
-#    "root@kanishev-ams-vm4"
+    "root@kanishev-ams-vm1",
+#    "root@kanishev-ams-vm2",
+    "root@kanishev-ams-vm3",
+    "root@kanishev-ams-vm4"
 ]
 
 krbconf = StringIO.StringIO("""
@@ -44,11 +44,17 @@ def setup_afs(user="kostams"):
 
 
 cvmfs = StringIO.StringIO("""
-    CVMFS_HTTP_PROXY=\"http://ca-proxy.cern.ch:3128;http://ca-proxy1.cern.ch:3128|http://ca-proxy2.cern.ch:3128|http://ca-proxy3.cern.ch:3128|http://ca-proxy4.cern.ch:3128|http://ca-proxy5.cern.ch:3128\"
-    CVMFS_REPOSITORIES=ams
+CVMFS_HTTP_PROXY=\"http://ca-proxy.cern.ch:3128;http://ca-proxy1.cern.ch:3128|http://ca-proxy2.cern.ch:3128|http://ca-proxy3.cern.ch:3128|http://ca-proxy4.cern.ch:3128|http://ca-proxy5.cern.ch:3128\"
+CVMFS_REPOSITORIES=ams
+CVMFS_CACHE_BASE=/data/cvmfs_cache/
+CVMFS_QUOTA_LIMIT=10000
 """)
 
 def setup_cvmfs():
+
+    mount_data()
+    run("mkdir -p /data/cvmfs_cache/")
+
     with  cd("/etc/yum.repos.d/"):
         run("wget http://cvmrepo.web.cern.ch/cvmrepo/yum/cernvm.repo")
 
@@ -64,6 +70,7 @@ def setup_cvmfs():
     )
     run("service autofs restart")    
     run("cvmfs_config setup")
+    run("chcon -Rv --type=cvmfs_cache_t /data/cvmfs_cache/")
     with settings(warn_only=True):
         run("cvmfs_config probe")
 
@@ -73,6 +80,9 @@ def mount_data():
 
 
 def mount_all(user="kostams"):
+    ptext = 'Password for {}@CERN.CH: '.format(user)
+    if ptext not in env.prompts:
+        env.prompts[ptext] = prompt("Password:")
     afshome = '/afs/cern.ch/user/{0}/{1}'.format(user[0],user)
     run("kinit {0}@CERN.CH".format(user))
     run("aklog")
@@ -110,7 +120,8 @@ def create_partition():
         run("mkfs.ext4 /dev/vda{}".format(N+1))
     else:
         print "VDA3 partition seems to already exist"
-        run("mkfs.ext4 /dev/vda{}".format(N))
+        with settings(warn_only=True):
+            run("mkfs.ext4 /dev/vda{}".format(N))
 
     run("mkdir -p /data")
     mount_data()

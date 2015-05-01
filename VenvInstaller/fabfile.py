@@ -6,7 +6,7 @@ DISTDIR    = BASEDIR + "/distribs"
 INSTALLDIR = BASEDIR + "/install"
 
 env.hosts = [
-    "root@kanishev-ams-vm0",
+#    "root@kanishev-ams-vm0",
     "root@kanishev-ams-vm1",
     "root@kanishev-ams-vm2",
     "root@kanishev-ams-vm3",
