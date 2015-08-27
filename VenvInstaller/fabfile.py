@@ -6,11 +6,12 @@ DISTDIR    = BASEDIR + "/distribs"
 INSTALLDIR = BASEDIR + "/install"
 
 env.hosts = [
+#     "ams-tracker-monitoring-test"
 #    "root@kanishev-ams-vm0",
-    "root@kanishev-ams-vm1",
-    "root@kanishev-ams-vm2",
+#    "root@kanishev-ams-vm1",
+#    "root@kanishev-ams-vm2",
     "root@kanishev-ams-vm3",
-    "root@kanishev-ams-vm4",
+#    "root@kanishev-ams-vm4",
 ]
 
 envsh = StringIO.StringIO("""
@@ -35,7 +36,8 @@ def yum():
         "openssl-devel", "xorg-x11-server-devel", "gcc-gfortran",
         "gcc-c++", "gcc", "binutils", "libX11-devel", 
         "libXpm-devel", "libXft-devel", "libXext-devel",
-        "libpng-devel", "cmake", "ncurses-devel"]
+        "libpng-devel", "cmake", "ncurses-devel",
+        "castor-rfio-client.x86_64", "xrootd-compat.x86_64" ]
         
     run("yum -y install " + " ".join(packages))
 
